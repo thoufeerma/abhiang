@@ -93,12 +93,10 @@ export default function Hero() {
 
   return (
     <section
-      className="relative isolate flex min-h-svh flex-col overflow-hidden"
+      className="relative isolate flex h-[max(100svh,380px)] flex-col overflow-hidden"
       style={
         {
-          "--fh": "min(50svh, 460px, 92vw)",
-          "--ground": "clamp(56px, 11svh, 120px)",
-          "--u": "calc(var(--fh) / 440)",
+          "--ground": "clamp(48px, 11svh, 120px)",
         } as React.CSSProperties
       }
     >
@@ -140,73 +138,79 @@ export default function Hero() {
 
       {celebrating && <FloatingHearts every={520} />}
 
-      {/* headline */}
-      <div className="relative z-10 mx-auto w-full max-w-5xl px-5 pt-[11svh] text-center sm:pt-[7svh]">
-        <AnimatePresence mode="wait">
-          {!celebrating ? (
-            <motion.p
-              key="kicker"
-              className="font-hand text-[clamp(1.5rem,3.6vw,2.6rem)] font-bold text-ink/80"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -12 }}
-              transition={{ duration: 0.6 }}
-            >
-              {hero.kicker}
-            </motion.p>
-          ) : (
-            <motion.div key="title" initial={{ opacity: 1 }} animate={{ opacity: 1 }}>
-              <h1 className="font-display flex flex-wrap items-center justify-center gap-x-[0.25em] text-[clamp(2.9rem,9vw,6.6rem)] leading-[0.95] font-bold">
-                {hero.title.map((word, wi) =>
-                  word === "&" ? (
+      {/* headline — kicker and title share one grid cell, so the space below never jumps */}
+      <div className="relative z-10 mx-auto grid w-full max-w-5xl px-5 pt-[max(4.25rem,11svh)] text-center sm:pt-[max(4.25rem,7svh)] [&>*]:[grid-area:1/1]">
+        <motion.p
+          className="font-hand self-start text-[clamp(1.4rem,min(3.6vw,6svh),2.6rem)] font-bold text-ink/80"
+          initial={{ opacity: 0, y: 10 }}
+          animate={celebrating ? { opacity: 0, y: -12 } : { opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          aria-hidden={celebrating}
+        >
+          {hero.kicker}
+        </motion.p>
+        <div key={celebrating ? "on" : "off"} className={celebrating ? "" : "invisible"} aria-hidden={!celebrating}>
+          <h1 className="font-display flex flex-wrap items-center justify-center gap-x-[0.25em] text-[clamp(2.2rem,min(11vw,11svh),6.6rem)] leading-[0.95] font-bold">
+            {hero.title.map((word, wi) =>
+              word === "&" ? (
+                <motion.span
+                  key={wi}
+                  className="inline-block"
+                  initial={{ scale: 0, rotate: -40 }}
+                  animate={{ scale: 1, rotate: 0 }}
+                  transition={{ type: "spring", stiffness: 260, damping: 11, delay: 0.55 }}
+                >
+                  <Heart className="heartbeat inline-block w-[0.85em] align-middle" />
+                  <span className="sr-only">&amp;</span>
+                </motion.span>
+              ) : (
+                <span key={wi} className="inline-flex whitespace-nowrap">
+                  {[...word].map((ch, ci) => (
                     <motion.span
-                      key={wi}
-                      className="inline-block"
-                      initial={{ scale: 0, rotate: -40 }}
-                      animate={{ scale: 1, rotate: 0 }}
-                      transition={{ type: "spring", stiffness: 260, damping: 11, delay: 0.55 }}
+                      key={ci}
+                      className="ink-text inline-block"
+                      style={{ color: letterColors[(ci + wi * 3) % letterColors.length] }}
+                      initial={{ y: -120, opacity: 0, rotate: -20 }}
+                      animate={{ y: 0, opacity: 1, rotate: ci % 2 ? 4 : -4 }}
+                      transition={{
+                        type: "spring",
+                        stiffness: 380,
+                        damping: 14,
+                        delay: (wi === 0 ? 0 : 0.7) + ci * 0.06,
+                      }}
                     >
-                      <Heart className="heartbeat inline-block w-[0.85em] align-middle" />
-                      <span className="sr-only">&amp;</span>
+                      {ch}
                     </motion.span>
-                  ) : (
-                    <span key={wi} className="inline-flex whitespace-nowrap">
-                      {[...word].map((ch, ci) => (
-                        <motion.span
-                          key={ci}
-                          className="ink-text inline-block"
-                          style={{ color: letterColors[(ci + wi * 3) % letterColors.length] }}
-                          initial={{ y: -120, opacity: 0, rotate: -20 }}
-                          animate={{ y: 0, opacity: 1, rotate: ci % 2 ? 4 : -4 }}
-                          transition={{
-                            type: "spring",
-                            stiffness: 380,
-                            damping: 14,
-                            delay: (wi === 0 ? 0 : 0.7) + ci * 0.06,
-                          }}
-                        >
-                          {ch}
-                        </motion.span>
-                      ))}
-                    </span>
-                  ),
-                )}
-              </h1>
-              <motion.p
-                className="font-hand mt-3 text-[clamp(1.35rem,3vw,2.2rem)] font-bold text-ink/80"
-                initial={{ opacity: 0, y: 14 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 1.4, duration: 0.6 }}
-              >
-                {hero.subtitle}
-              </motion.p>
-            </motion.div>
-          )}
-        </AnimatePresence>
+                  ))}
+                </span>
+              ),
+            )}
+          </h1>
+          <motion.p
+            className="font-hand mt-[min(0.75rem,1.5svh)] text-[clamp(1.05rem,min(3vw,4.6svh),2.2rem)] font-bold text-ink/80"
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.4, duration: 0.6 }}
+          >
+            {hero.subtitle}
+          </motion.p>
+        </div>
       </div>
 
-      {/* ---------- the stage ---------- */}
-      <div className={`pointer-events-none absolute inset-0 ${shake ? "shake" : ""}`}>
+      {/* ---------- the stage ----------
+          Fills the space under the headline. Figures size themselves to it
+          (container units), so nothing overlaps on short or narrow screens. */}
+      <div className="pointer-events-none relative min-h-[220px] flex-1 [container-type:size]">
+      <div
+        className={`absolute inset-0 ${shake ? "shake" : ""}`}
+        style={
+          {
+            // heart balloon tops out ~1.1 figure-heights above the ground
+            "--fh": "min(calc((100cqh - var(--ground)) / 1.17), 92cqw, 600px)",
+            "--u": "calc(var(--fh) / 440)",
+          } as React.CSSProperties
+        }
+      >
         {/* Abhinav, from the left */}
         <motion.div
           key={`him-${run}`}
@@ -357,13 +361,14 @@ export default function Hero() {
         <AnimatePresence>
           {phase === "spark" && (
             <motion.div
-              className="absolute inset-0 bg-white"
+              className="absolute inset-x-0 bottom-0 top-[-100svh] bg-white"
               initial={{ opacity: 0 }}
               animate={{ opacity: [0, 0.85, 0] }}
               transition={{ duration: 0.55, times: [0, 0.15, 1] }}
             />
           )}
         </AnimatePresence>
+      </div>
       </div>
 
       {/* tap-to-begin gate: browsers only allow music after a tap */}
@@ -372,7 +377,7 @@ export default function Hero() {
           <motion.button
             key="gate"
             onClick={begin}
-            className="absolute inset-0 z-30 flex cursor-pointer flex-col items-center justify-center gap-4 bg-white/10 backdrop-blur-[2px]"
+            className="absolute inset-0 z-30 flex cursor-pointer flex-col items-center justify-center gap-[min(1rem,2svh)] bg-white/10 pt-[max(3rem,6svh)] backdrop-blur-[2px]"
             exit={{ opacity: 0, transition: { duration: 0.4 } }}
             aria-label="Tap to begin, with music"
           >
@@ -380,7 +385,7 @@ export default function Hero() {
             <motion.img
               src="/heads/abhinav.png"
               alt=""
-              className="absolute bottom-[calc(var(--ground)+10px)] left-[-34px] w-[clamp(110px,16vw,190px)] sm:left-[-40px]"
+              className="absolute bottom-[calc(var(--ground)+10px)] left-[-34px] w-[clamp(90px,min(16vw,24svh),190px)] sm:left-[-40px]"
               initial={{ x: -120, rotate: 0 }}
               animate={{ x: 0, rotate: [14, 22, 14] }}
               transition={{ x: { type: "spring", stiffness: 120, damping: 14, delay: 0.3 }, rotate: { duration: 2.2, repeat: Infinity } }}
@@ -388,7 +393,7 @@ export default function Hero() {
             <motion.img
               src="/heads/angel.png"
               alt=""
-              className="absolute bottom-[calc(var(--ground)+10px)] right-[-34px] w-[clamp(110px,16vw,190px)] sm:right-[-40px]"
+              className="absolute bottom-[calc(var(--ground)+10px)] right-[-34px] w-[clamp(90px,min(16vw,24svh),190px)] sm:right-[-40px]"
               initial={{ x: 120, rotate: 0 }}
               animate={{ x: 0, rotate: [-14, -22, -14] }}
               transition={{ x: { type: "spring", stiffness: 120, damping: 14, delay: 0.5 }, rotate: { duration: 2.2, repeat: Infinity, delay: 0.4 } }}
@@ -399,12 +404,12 @@ export default function Hero() {
               animate={{ scale: 1 }}
               transition={{ type: "spring", stiffness: 260, damping: 12, delay: 0.15 }}
             >
-              <Heart className="heartbeat w-[clamp(150px,22vw,220px)] drop-shadow-[6px_7px_0_rgba(43,27,46,0.9)]" />
+              <Heart className="heartbeat w-[clamp(96px,min(22vw,26svh),220px)] drop-shadow-[6px_7px_0_rgba(43,27,46,0.9)]" />
               <span className="font-display ink-text absolute inset-0 flex items-center justify-center pb-3 text-[clamp(1.6rem,3.4vw,2.3rem)] font-bold text-white">
                 ▶
               </span>
             </motion.span>
-            <span className="font-display ink-text text-[clamp(1.8rem,4.5vw,3rem)] font-bold text-sun">{intro.button}</span>
+            <span className="font-display ink-text text-[clamp(1.5rem,min(4.5vw,7svh),3rem)] font-bold text-sun">{intro.button}</span>
             <span className="font-hand nudge text-2xl font-bold text-ink/80">{intro.hint}</span>
           </motion.button>
         )}

@@ -32,14 +32,16 @@ function Card({ p, tilt, accent, delay }: { p: Person; tilt: number; accent: str
             style={{ objectPosition: p.key === "angel" ? "50% 62%" : "50% 30%" }}
           />
         </div>
-        <p className="font-hand mt-3 text-center text-3xl font-bold">{p.fullName}</p>
-        <p className="font-hand text-center text-xl text-ink/70">{p.tagline}</p>
+        <div className={p.key === "abhinav" ? "pl-14 pr-2 sm:pl-16" : "pl-2 pr-14 sm:pr-16"}>
+          <p className="font-hand mt-3 text-center text-3xl font-bold">{p.fullName}</p>
+          <p className="font-hand text-center text-xl leading-tight text-ink/70">{p.tagline}</p>
+        </div>
 
         {/* bobblehead sticker peeking from the corner */}
         <motion.img
           src={p.key === "abhinav" ? "/heads/abhinav.png" : "/heads/angel.png"}
           alt=""
-          className={`absolute -bottom-10 w-28 ${p.key === "abhinav" ? "-left-10" : "-right-10"}`}
+          className={`absolute -bottom-10 w-24 sm:w-28 ${p.key === "abhinav" ? "-left-5 lg:-left-10" : "-right-5 lg:-right-10"}`}
           animate={{ rotate: [-8, 8, -8] }}
           transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
         />
@@ -60,7 +62,7 @@ function Card({ p, tilt, accent, delay }: { p: Person; tilt: number; accent: str
 
 export default function Meet() {
   return (
-    <section id="meet" className="relative scroll-mt-4 px-5 py-24 sm:py-32">
+    <section id="meet" className="relative scroll-mt-4 px-6 py-24 sm:py-32 md:px-10">
       <div className="mx-auto max-w-5xl">
         <div className="mb-16 text-center">
           <p className="font-hand text-2xl font-bold text-coral">say hi to</p>
