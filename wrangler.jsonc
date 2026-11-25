@@ -1,7 +1,12 @@
 {
-  // Cloudflare Pages: static Next.js export.
-  // Build command: npm run build  →  output folder: ./out
+  // Static Next.js export: `npm run build` writes the site to ./out.
+  // Cloudflare Workers (`npx wrangler deploy`) serves ./out as static assets.
+  // A Cloudflare Pages project ignores this file and uses its dashboard
+  // setting instead (build: npm run build, output directory: out).
   "name": "abhiang",
-  "pages_build_output_dir": "./out",
-  "compatibility_date": "2026-11-01"
+  "compatibility_date": "2026-11-01",
+  "assets": {
+    "directory": "./out",
+    "not_found_handling": "404-page"
+  }
 }
