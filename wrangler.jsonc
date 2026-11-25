@@ -1,9 +1,7 @@
 {
-  // Cloudflare Workers: serve the static Next.js export (`npm run build` → ./out)
+  // Cloudflare Pages: static Next.js export.
+  // Build command: npm run build  →  output folder: ./out
   "name": "abhiang",
-  "compatibility_date": "2026-11-01",
-  "assets": {
-    "directory": "./out",
-    "not_found_handling": "404-page"
-  }
+  "pages_build_output_dir": "./out",
+  "compatibility_date": "2026-11-01"
 }
