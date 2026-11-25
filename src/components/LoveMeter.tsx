@@ -1,9 +1,12 @@
 "use client";
 
 import { AnimatePresence, motion } from "motion/react";
-import { useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { confettiRain, loveBurst } from "@/lib/confetti";
+import { getMusic } from "@/lib/music";
 import { Heart, Squiggle } from "./Doodles";
+import { FloatyDoodles, PopIn } from "./Extras";
+import LoveParty from "./LoveParty";
 
 const STEP = 8;
 const LABELS = [
@@ -20,6 +23,8 @@ type Pop = { id: number; x: number; r: number };
 export default function LoveMeter() {
   const [love, setLove] = useState(0);
   const [pops, setPops] = useState<Pop[]>([]);
+  const [party, setParty] = useState(false);
+  const closeParty = useCallback(() => setParty(false), []);
   const btn = useRef<HTMLButtonElement>(null);
   const nextId = useRef(0);
   const full = love >= 100;
@@ -30,8 +35,10 @@ export default function LoveMeter() {
     const id = ++nextId.current;
     setPops((p) => [...p.slice(-14), { id, x: (id * 47) % 120 - 60, r: (id * 31) % 50 - 25 }]);
     if (full) {
-      const r = btn.current?.getBoundingClientRect();
-      if (r) loveBurst(r.left + r.width / 2, r.top + r.height / 2, 0.5);
+      // already at 100%: throw the party again
+      setParty(true);
+      getMusic().yay();
+      confettiRain();
       return;
     }
     const next = Math.min(100, love + STEP);
@@ -40,16 +47,30 @@ export default function LoveMeter() {
       const r = btn.current?.getBoundingClientRect();
       if (r) loveBurst(r.left + r.width / 2, r.top + r.height / 2, 1.4);
       confettiRain();
+      getMusic().yay();
+      setTimeout(() => setParty(true), 350);
     }
   };
 
   return (
-    <section id="love" className="relative px-5 py-24 sm:py-32">
+    <section id="love" className="relative isolate px-5 py-24 sm:py-32">
+      <FloatyDoodles
+        items={[
+          { kind: "heart", top: "34%", left: "4%", size: 48, color: "#ff8fab", mobile: true },
+          { kind: "heart", top: "50%", right: "9%", size: 44, color: "#c9b6ff", mobile: true },
+          { kind: "sparkle", top: "12%", right: "16%", size: 38, color: "#ffd45c" },
+          { kind: "dots", top: "70%", left: "8%", size: 60, color: "#ffb3c7" },
+          { kind: "star", top: "82%", right: "18%", size: 36, color: "#ffd45c" },
+        ]}
+      />
+      <LoveParty open={party} onClose={closeParty} />
       <div className="mx-auto max-w-3xl text-center">
         <p className="font-hand text-2xl font-bold text-coral">scientifically accurate*</p>
-        <h2 className="font-display text-[clamp(2.4rem,6vw,4.2rem)] font-bold leading-tight">
-          The <span className="marker">Love-o-Meter</span>
-        </h2>
+        <PopIn>
+          <h2 className="font-display text-[clamp(2.4rem,6vw,4.2rem)] font-bold leading-tight">
+            The <span className="marker">Love-o-Meter</span>
+          </h2>
+        </PopIn>
         <Squiggle className="mx-auto mt-2 h-4 w-48" stroke="#c9b6ff" />
 
         <div className="relative mx-auto mt-14 w-fit">

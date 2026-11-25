@@ -1,3 +1,4 @@
+import { CursorTrail } from "@/components/Extras";
 import Footer from "@/components/Footer";
 import Hero from "@/components/Hero";
 import LoveMeter from "@/components/LoveMeter";
@@ -11,6 +12,7 @@ export default function Home() {
     <main className="relative overflow-x-clip">
       <StickDefs />
       <MusicToggle />
+      <CursorTrail />
       <Hero />
       <Meet />
       <Story />

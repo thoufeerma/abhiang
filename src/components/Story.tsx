@@ -4,6 +4,7 @@ import { motion } from "motion/react";
 import type { ReactNode } from "react";
 import { story } from "@/content";
 import { Burst, Cloud, Heart, Sparkle, Squiggle } from "./Doodles";
+import { FloatyDoodles, PopIn } from "./Extras";
 import Stickman from "./Stickman";
 
 const INK = "#2b1b2e";
@@ -124,13 +125,24 @@ function Scene({ kind }: { kind: (typeof story)[number]["scene"] }) {
 
 export default function Story() {
   return (
-    <section id="story" className="relative px-5 py-24 sm:py-32">
+    <section id="story" className="relative isolate px-5 py-24 sm:py-32">
+      <FloatyDoodles
+        items={[
+          { kind: "heart", top: "6%", left: "6%", size: 40, color: "#ff6b8b", mobile: true },
+          { kind: "star", top: "4%", right: "7%", size: 44, color: "#ffd45c", mobile: true },
+          { kind: "squiggle", top: "40%", right: "2%", size: 72, color: "#c9b6ff" },
+          { kind: "spiral", top: "62%", left: "2%", size: 56, color: "#ff8fab" },
+          { kind: "sparkle", top: "88%", right: "5%", size: 34, color: "#fff6c9" },
+        ]}
+      />
       <div className="mx-auto max-w-6xl">
         <div className="mb-16 text-center">
           <p className="font-hand text-2xl font-bold text-coral">a tiny comic about</p>
-          <h2 className="font-display text-[clamp(2.4rem,6vw,4.2rem)] font-bold leading-tight">
-            Our <span className="marker">Little</span> Story
-          </h2>
+          <PopIn>
+            <h2 className="font-display text-[clamp(2.4rem,6vw,4.2rem)] font-bold leading-tight">
+              Our <span className="marker">Little</span> Story
+            </h2>
+          </PopIn>
           <Squiggle className="mx-auto mt-2 h-4 w-48" stroke="#9fdcff" />
         </div>
 
@@ -142,6 +154,7 @@ export default function Story() {
               whileInView={{ opacity: 1, y: 0, rotate: i % 2 ? 1 : -1, scale: 1 }}
               viewport={{ once: true, amount: 0.35 }}
               transition={{ type: "spring", stiffness: 110, damping: 14, delay: (i % 2) * 0.12 }}
+              whileHover={{ rotate: 0, scale: 1.03, y: -6 }}
               className="relative rounded-[22px] border-[4px] border-ink bg-white p-3 shadow-pop"
             >
               <span className="font-display absolute -left-4 -top-5 z-10 flex size-12 items-center justify-center rounded-full border-[4px] border-ink bg-sun text-xl font-bold shadow-pop-sm">

@@ -49,6 +49,8 @@ class Music {
   private nextTime = 0;
   private step = 0;
   private audio: HTMLAudioElement | null = null;
+  private yayBuf: AudioBuffer | null = null;
+  private yayLoading: Promise<void> | null = null;
   private listeners = new Set<Listener>();
   playing = false;
   /** true once the visitor has tapped "begin" — the sound button shows from then on */
@@ -170,10 +172,27 @@ class Music {
     }
   };
 
+  /** fetch + decode the "yay" cheer once */
+  private loadYay() {
+    if (this.yayLoading) return this.yayLoading;
+    const ctx = this.ensureCtx();
+    this.yayLoading = fetch("/sounds/yay.wav")
+      .then((r) => r.arrayBuffer())
+      .then((b) => ctx.decodeAudioData(b))
+      .then((buf) => {
+        this.yayBuf = buf;
+      })
+      .catch(() => {
+        this.yayLoading = null;
+      });
+    return this.yayLoading;
+  }
+
   async start() {
     if (this.playing) return;
     this.playing = true;
     this.emit();
+    this.loadYay();
 
     if (musicConfig.file) {
       // unlock Web Audio too (inside the tap), so the "yay" chime can play later
@@ -224,7 +243,30 @@ class Music {
     else this.start();
   }
 
-  /** a sparkly "yay!" chime — plays only while sound is on */
+  /** shout "yaaay!" with a sparkly chime — only while sound is on */
+  async yay() {
+    if (!this.playing) return;
+    const ctx = this.ensureCtx();
+    this.chime();
+    await this.loadYay();
+    if (!this.yayBuf || !this.playing) return;
+    const src = ctx.createBufferSource();
+    src.buffer = this.yayBuf;
+    const g = ctx.createGain();
+    g.gain.value = 1.1;
+    src.connect(g).connect(ctx.destination);
+    src.start(ctx.currentTime + 0.03);
+    // duck the music under the cheer
+    if (this.master && !this.audio) {
+      const t = ctx.currentTime;
+      this.master.gain.cancelScheduledValues(t);
+      this.master.gain.setValueAtTime(this.master.gain.value, t);
+      this.master.gain.linearRampToValueAtTime(musicConfig.volume * 0.35, t + 0.08);
+      this.master.gain.linearRampToValueAtTime(musicConfig.volume, t + 1.4);
+    }
+  }
+
+  /** sparkly chime */
   chime() {
     if (!this.playing) return;
     const ctx = this.ensureCtx();

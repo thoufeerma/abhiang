@@ -175,6 +175,25 @@ body {
 }
 .shake { animation: shake 0.45s ease-in-out; }
 
+/* ---------- extra cartoon motion ---------- */
+@keyframes flap {
+  0%, 100% { transform: scaleY(1); }
+  50% { transform: scaleY(0.35) translateY(4px); }
+}
+.flap { animation: flap 0.45s ease-in-out infinite; transform-origin: 50% 60%; }
+
+@keyframes bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+.bob { animation: bob 3.4s ease-in-out infinite; }
+
+@keyframes wing {
+  0%, 100% { transform: scaleX(1); }
+  50% { transform: scaleX(0.25); }
+}
+.wing-l, .wing-r { animation: wing 0.28s ease-in-out infinite; }
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.001ms !important;

@@ -6,6 +6,7 @@ import { hero, intro } from "@/content";
 import { loveBurst } from "@/lib/confetti";
 import { getMusic } from "@/lib/music";
 import { Burst, Cloud, Flower, Heart, Hills, Sparkle, Star, Sun } from "./Doodles";
+import { Birds, Butterfly, Rainbow } from "./Extras";
 import FloatingHearts from "./FloatingHearts";
 import Stickman from "./Stickman";
 
@@ -67,7 +68,7 @@ export default function Hero() {
     if (phase !== "spark") return;
     const r = sparkRef.current?.getBoundingClientRect();
     if (r) loveBurst(r.left + r.width / 2, r.top + r.height / 2, 1.2);
-    getMusic().chime();
+    getMusic().yay();
   }, [phase]);
 
   const begin = () => {
@@ -114,6 +115,10 @@ export default function Hero() {
         <Cloud className="cloud-drift absolute top-[12svh] w-[clamp(110px,14vw,210px)]" style={{ animationDuration: "48s", animationDelay: "-12s" }} />
         <Cloud className="cloud-drift absolute top-[26svh] w-[clamp(80px,10vw,150px)] opacity-90" style={{ animationDuration: "64s", animationDelay: "-40s" }} />
         <Cloud className="cloud-drift absolute top-[5svh] w-[clamp(70px,8vw,120px)] opacity-80" style={{ animationDuration: "56s", animationDelay: "-5s" }} />
+        <Birds className="top-[18svh] scale-75 sm:scale-100" style={{ animationDuration: "38s", animationDelay: "-20s" }} />
+        <Birds className="top-[34svh] scale-50 opacity-80 sm:scale-75" style={{ animationDuration: "52s", animationDelay: "-3s" }} />
+        <Butterfly className="bottom-[calc(var(--ground)+40px)] left-[12%]" color="#ffb3c7" />
+        <Butterfly className="bottom-[calc(var(--ground)+70px)] right-[14%]" color="#c9b6ff" path={[0, -50, 10, -30, 0]} rise={[0, -20, -45, -15, 0]} duration={11} size={30} />
 
         {/* hills + flowers */}
         <Hills className="absolute inset-x-0 bottom-0 h-[calc(var(--ground)+90px)] w-full" />
@@ -211,6 +216,16 @@ export default function Hero() {
           } as React.CSSProperties
         }
       >
+        {/* rainbow arcs over them once they meet */}
+        {celebrating && (
+          <div
+            className="absolute -translate-x-1/2"
+            style={{ left: "50%", bottom: "calc(var(--ground) - var(--u) * 6)", width: "min(calc(var(--u) * 660), 100cqw)" }}
+          >
+            <Rainbow className="w-full" />
+          </div>
+        )}
+
         {/* Abhinav, from the left */}
         <motion.div
           key={`him-${run}`}

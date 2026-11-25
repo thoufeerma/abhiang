@@ -4,6 +4,7 @@ import Image from "next/image";
 import { motion } from "motion/react";
 import { her, him, type Person } from "@/content";
 import { Heart, Sparkle, Squiggle } from "./Doodles";
+import { Butterfly, FloatyDoodles, GrassEdge, PopIn } from "./Extras";
 
 function Card({ p, tilt, accent, delay }: { p: Person; tilt: number; accent: string; delay: number }) {
   return (
@@ -62,13 +63,27 @@ function Card({ p, tilt, accent, delay }: { p: Person; tilt: number; accent: str
 
 export default function Meet() {
   return (
-    <section id="meet" className="relative scroll-mt-4 px-6 py-24 sm:py-32 md:px-10">
+    <section id="meet" className="relative isolate scroll-mt-4 px-6 py-24 sm:py-32 md:px-10">
+      <GrassEdge className="absolute inset-x-0 top-0 h-7 w-full sm:h-9" />
+      <FloatyDoodles
+        items={[
+          { kind: "star", top: "12%", left: "4%", size: 46, color: "#ffd45c", mobile: true },
+          { kind: "spiral", top: "30%", right: "4%", size: 58, color: "#9fdcff" },
+          { kind: "heart", top: "58%", left: "3%", size: 40, color: "#ff8fab" },
+          { kind: "dots", top: "80%", right: "6%", size: 64, color: "#c9b6ff" },
+          { kind: "sparkle", top: "8%", right: "8%", size: 36, color: "#fff6c9", mobile: true },
+          { kind: "squiggle", top: "44%", left: "6%", size: 70, color: "#9be38a" },
+        ]}
+      />
+      <Butterfly className="left-[8%] top-[22%] hidden md:block" color="#9fdcff" duration={12} />
       <div className="mx-auto max-w-5xl">
         <div className="mb-16 text-center">
           <p className="font-hand text-2xl font-bold text-coral">say hi to</p>
-          <h2 className="font-display text-[clamp(2.4rem,6vw,4.2rem)] font-bold leading-tight">
-            The <span className="marker">Cutest</span> Duo
-          </h2>
+          <PopIn>
+            <h2 className="font-display text-[clamp(2.4rem,6vw,4.2rem)] font-bold leading-tight">
+              The <span className="marker">Cutest</span> Duo
+            </h2>
+          </PopIn>
           <Squiggle className="mx-auto mt-2 h-4 w-48" stroke="#ff6b8b" />
         </div>
 

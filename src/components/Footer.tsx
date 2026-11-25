@@ -3,6 +3,7 @@
 import { motion } from "motion/react";
 import { footer } from "@/content";
 import { Flower, Heart, Hills, Sparkle } from "./Doodles";
+import { Butterfly } from "./Extras";
 import FloatingHearts from "./FloatingHearts";
 import Stickman from "./Stickman";
 
@@ -13,6 +14,8 @@ export default function Footer() {
       style={{ "--fh": "min(300px, 60vw)", "--u": "calc(var(--fh) / 440)" } as React.CSSProperties}
     >
       <FloatingHearts every={900} />
+      <Butterfly className="bottom-[150px] left-[18%]" color="#ffd45c" duration={10} />
+      <Butterfly className="bottom-[210px] right-[20%]" color="#9fdcff" path={[0, -40, 20, -20, 0]} rise={[0, -30, -10, -50, 0]} duration={12} size={28} />
 
       <div className="relative z-10 px-5 text-center">
         <motion.h2
