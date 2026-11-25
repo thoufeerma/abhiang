@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "motion/react";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { confettiRain, loveBurst } from "@/lib/confetti";
 import { getMusic } from "@/lib/music";
 import { Heart, Squiggle } from "./Doodles";
@@ -9,6 +9,8 @@ import { FloatyDoodles, PopIn } from "./Extras";
 import LoveParty from "./LoveParty";
 
 const STEP = 8;
+/** after the party, the heart rests this long before it can party again */
+const COOLDOWN_S = 10;
 const LABELS = [
   [0, "tap the heart to measure the love"],
   [1, "ooh, warming up…"],
@@ -25,31 +27,72 @@ export default function LoveMeter() {
   const [pops, setPops] = useState<Pop[]>([]);
   const [party, setParty] = useState(false);
   const closeParty = useCallback(() => setParty(false), []);
+  const [cooldown, setCooldown] = useState(0); // seconds left
   const btn = useRef<HTMLButtonElement>(null);
   const nextId = useRef(0);
+  const loveRef = useRef(0); // always-current value, safe for very fast taps
+  const lockedUntil = useRef(0); // ms timestamp; taps before this are ignored
+  const timers = useRef<{ tick?: ReturnType<typeof setInterval>; party?: ReturnType<typeof setTimeout> }>({});
   const full = love >= 100;
+  const resting = cooldown > 0;
+
+  useEffect(() => {
+    const t = timers.current;
+    return () => {
+      clearInterval(t.tick);
+      clearTimeout(t.party);
+    };
+  }, []);
+
+  const startCooldown = () => {
+    lockedUntil.current = Date.now() + COOLDOWN_S * 1000;
+    setCooldown(COOLDOWN_S);
+    clearInterval(timers.current.tick);
+    timers.current.tick = setInterval(() => {
+      const left = Math.ceil((lockedUntil.current - Date.now()) / 1000);
+      if (left <= 0) {
+        clearInterval(timers.current.tick);
+        setCooldown(0);
+      } else {
+        setCooldown(left);
+      }
+    }, 250);
+  };
+
+  const throwParty = (delay: number) => {
+    startCooldown();
+    confettiRain();
+    getMusic().yay();
+    clearTimeout(timers.current.party);
+    timers.current.party = setTimeout(() => setParty(true), delay);
+  };
 
   const label = [...LABELS].reverse().find(([min]) => love >= min)?.[1] ?? LABELS[0][1];
 
   const tap = () => {
+    // resting after a party: ignore taps until the countdown ends
+    if (Date.now() < lockedUntil.current) return;
     const id = ++nextId.current;
     setPops((p) => [...p.slice(-14), { id, x: (id * 47) % 120 - 60, r: (id * 31) % 50 - 25 }]);
-    if (full) {
-      // already at 100%: throw the party again
-      setParty(true);
-      getMusic().yay();
-      confettiRain();
+    if (loveRef.current >= 100) {
+      // already at 100% and rested: one more party
+      throwParty(0);
       return;
     }
-    const next = Math.min(100, love + STEP);
+    const next = Math.min(100, loveRef.current + STEP);
+    loveRef.current = next;
     setLove(next);
     if (next >= 100) {
       const r = btn.current?.getBoundingClientRect();
       if (r) loveBurst(r.left + r.width / 2, r.top + r.height / 2, 1.4);
-      confettiRain();
-      getMusic().yay();
-      setTimeout(() => setParty(true), 350);
+      throwParty(350);
     }
+  };
+
+  const reset = () => {
+    if (resting) return;
+    loveRef.current = 0;
+    setLove(0);
   };
 
   return (
@@ -94,14 +137,17 @@ export default function LoveMeter() {
             onClick={tap}
             whileTap={{ scale: 0.86 }}
             whileHover={{ scale: 1.05, rotate: -3 }}
-            animate={full ? { scale: [1, 1.12, 1] } : { scale: 1 }}
-            transition={full ? { duration: 0.9, repeat: Infinity } : { type: "spring", stiffness: 400, damping: 12 }}
-            className="relative block cursor-pointer outline-none focus-visible:drop-shadow-[0_0_0_4px_#ffd45c]"
-            aria-label="Send love"
+            animate={full && !resting ? { scale: [1, 1.12, 1] } : { scale: 1 }}
+            transition={full && !resting ? { duration: 0.9, repeat: Infinity } : { type: "spring", stiffness: 400, damping: 12 }}
+            className={`relative block outline-none transition-[filter,opacity] duration-300 focus-visible:drop-shadow-[0_0_0_4px_#ffd45c] ${
+              resting ? "cursor-not-allowed opacity-70 saturate-50" : "cursor-pointer"
+            }`}
+            aria-label={resting ? `Love is recharging, ${cooldown} seconds` : "Send love"}
+            aria-disabled={resting}
           >
             <Heart className="w-[clamp(160px,34vw,230px)] drop-shadow-[6px_7px_0_rgba(43,27,46,0.9)]" />
             <span className="font-display ink-text absolute inset-0 flex items-center justify-center pb-4 text-[clamp(1.6rem,5vw,2.4rem)] font-bold text-white">
-              {full ? "∞" : `${love}%`}
+              {resting ? `⏳${cooldown}` : full ? "∞" : `${love}%`}
             </span>
           </motion.button>
         </div>
@@ -122,19 +168,20 @@ export default function LoveMeter() {
           </div>
           <AnimatePresence mode="wait">
             <motion.p
-              key={label}
+              key={resting ? "resting" : full ? "again" : label}
               className="font-hand mt-4 text-3xl font-bold"
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}
             >
-              {label}
+              {resting ? `love is recharging… ${cooldown}s` : full ? "OFF THE CHARTS 💯 tap for another party" : label}
             </motion.p>
           </AnimatePresence>
           {full && (
             <button
-              onClick={() => setLove(0)}
-              className="font-display mt-4 rounded-full border-[3px] border-ink bg-white px-4 py-1.5 text-sm font-semibold shadow-pop-sm transition hover:-translate-y-0.5"
+              onClick={reset}
+              disabled={resting}
+              className="font-display mt-4 rounded-full border-[3px] border-ink bg-white px-4 py-1.5 text-sm font-semibold shadow-pop-sm transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0"
             >
               measure again
             </button>
