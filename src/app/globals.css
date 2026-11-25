@@ -1,0 +1,185 @@
+@import "tailwindcss";
+
+@theme {
+  --color-ink: #2b1b2e;
+  --color-paper: #fff7ea;
+  --color-cream: #fff1d6;
+  --color-coral: #ff6b8b;
+  --color-blush: #ffc2d4;
+  --color-sun: #ffc94d;
+  --color-sky: #9fdcff;
+  --color-mint: #9be38a;
+  --color-grass: #6fcf6a;
+  --color-lilac: #c9b6ff;
+  --color-denim: #a9c9ec;
+
+  --font-display: var(--font-fredoka), ui-rounded, system-ui, sans-serif;
+  --font-hand: var(--font-caveat), "Comic Sans MS", cursive;
+  --font-sans: var(--font-fredoka), ui-rounded, system-ui, sans-serif;
+
+  --shadow-pop: 6px 6px 0 0 var(--color-ink);
+  --shadow-pop-sm: 3px 3px 0 0 var(--color-ink);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-paper);
+  background-image: radial-gradient(rgb(43 27 46 / 0.09) 1.2px, transparent 1.2px);
+  background-size: 22px 22px;
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+}
+
+::selection {
+  background: var(--color-blush);
+}
+
+/* ---------- comic text ---------- */
+.ink-text {
+  -webkit-text-stroke: 0.06em var(--color-ink);
+  paint-order: stroke fill;
+  text-shadow: 0.06em 0.07em 0 var(--color-ink);
+}
+
+.marker {
+  background: linear-gradient(transparent 55%, var(--color-sun) 55%, var(--color-sun) 88%, transparent 88%);
+  padding: 0 0.15em;
+}
+
+/* ---------- stickman rig ---------- */
+/* Every limb is drawn hanging from its joint at (0,0) inside a translated group,
+   so a plain CSS rotate pivots on the joint. */
+.sm-joint {
+  transform-box: view-box;
+  transform-origin: 0 0;
+}
+.sm-pose {
+  transition: transform 0.55s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.sm-walking .sm-thigh-l { animation: sm-thigh 0.6s linear infinite; }
+.sm-walking .sm-thigh-r { animation: sm-thigh 0.6s linear infinite reverse; }
+.sm-walking .sm-shin-l  { animation: sm-shin 0.6s linear infinite; }
+.sm-walking .sm-shin-r  { animation: sm-shin 0.6s linear infinite; animation-delay: -0.3s; }
+.sm-walking .sm-swing-l { animation: sm-arm 0.6s linear infinite reverse; }
+.sm-walking .sm-swing-r { animation: sm-arm 0.6s linear infinite; }
+.sm-walking .sm-body    { animation: sm-bob 0.3s ease-in-out infinite alternate; }
+.sm-walking .sm-skirt   { animation: sm-skirt 0.6s ease-in-out infinite; }
+.sm-walking .sm-head    { animation: sm-bobble 0.6s ease-in-out infinite; }
+.sm-idle .sm-head       { animation: sm-bobble-soft 3.2s ease-in-out infinite; }
+.sm-waving-l            { animation: sm-wave-l 0.5s ease-in-out infinite alternate; }
+.sm-waving-r            { animation: sm-wave-r 0.5s ease-in-out infinite alternate; }
+.sm-hop                 { animation: sm-hop 0.7s cubic-bezier(0.3, 0, 0.4, 1) infinite; }
+
+@keyframes sm-thigh {
+  0%, 50%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(24deg); }
+  75% { transform: rotate(-24deg); }
+}
+@keyframes sm-shin {
+  0%, 50%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-6deg); }
+  75% { transform: rotate(28deg); }
+}
+@keyframes sm-arm {
+  0%, 50%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(20deg); }
+  75% { transform: rotate(-20deg); }
+}
+@keyframes sm-bob {
+  from { transform: translateY(0); }
+  to   { transform: translateY(-5px); }
+}
+@keyframes sm-skirt {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(3deg); }
+  75% { transform: rotate(-3deg); }
+}
+@keyframes sm-bobble {
+  0%, 100% { transform: rotate(-4deg); }
+  50% { transform: rotate(4deg); }
+}
+@keyframes sm-bobble-soft {
+  0%, 100% { transform: rotate(-2.5deg); }
+  50% { transform: rotate(2.5deg); }
+}
+@keyframes sm-wave-l {
+  from { transform: rotate(-12deg); }
+  to   { transform: rotate(18deg); }
+}
+@keyframes sm-wave-r {
+  from { transform: rotate(12deg); }
+  to   { transform: rotate(-18deg); }
+}
+@keyframes sm-hop {
+  0%, 100% { transform: translateY(0); }
+  40% { transform: translateY(-14px); }
+  60% { transform: translateY(-14px); }
+}
+
+/* ---------- scenery ---------- */
+@keyframes drift {
+  from { transform: translateX(-30vw); }
+  to   { transform: translateX(130vw); }
+}
+.cloud-drift { animation: drift linear infinite; }
+
+@keyframes spin-slow {
+  to { transform: rotate(360deg); }
+}
+.spin-slow { animation: spin-slow 22s linear infinite; }
+
+@keyframes float-up {
+  0% { transform: translate(0, 0) scale(0.6) rotate(0deg); opacity: 0; }
+  10% { opacity: 1; }
+  100% { transform: translate(var(--dx, 0px), -110vh) scale(1.1) rotate(var(--rot, 20deg)); opacity: 0; }
+}
+.float-heart { animation: float-up linear forwards; }
+
+@keyframes heartbeat {
+  0%, 100% { transform: scale(1); }
+  15% { transform: scale(1.14); }
+  30% { transform: scale(0.98); }
+  45% { transform: scale(1.1); }
+}
+.heartbeat { animation: heartbeat 1.4s ease-in-out infinite; }
+
+@keyframes sway {
+  0%, 100% { transform: rotate(-4deg); }
+  50% { transform: rotate(4deg); }
+}
+.sway { animation: sway 3s ease-in-out infinite; transform-origin: 50% 100%; }
+
+@keyframes wiggle {
+  0%, 100% { transform: rotate(-3deg); }
+  50% { transform: rotate(3deg); }
+}
+.wiggle { animation: wiggle 0.9s ease-in-out infinite; }
+
+@keyframes nudge {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(8px); }
+}
+.nudge { animation: nudge 1.4s ease-in-out infinite; }
+
+@keyframes shake {
+  0%, 100% { transform: translate(0, 0); }
+  20% { transform: translate(-6px, 3px); }
+  40% { transform: translate(5px, -4px); }
+  60% { transform: translate(-4px, -2px); }
+  80% { transform: translate(3px, 4px); }
+}
+.shake { animation: shake 0.45s ease-in-out; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
